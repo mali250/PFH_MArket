@@ -1,0 +1,1417 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - TradeMind AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-XxCgZcVt1a2n6Tsw5qGqfFi9d6iBblp2Re/ndFpqX84XmrpQxvNKXpT7b9BqEqgWlcmZ9ZjLM7XvRY7+8i3Lmw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;     
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --bg-primary: #0a0d1a;
+            --bg-secondary: rgba(15, 23, 42, 0.8);
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5d6;
+            --accent-color: #22d3ee;
+            --purple-accent: #8b5cf6;
+            --green-accent: #10b981;
+            --red-accent: #ef4444;
+            --gold-accent: #f59e0b;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Light Theme Variables */
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: rgba(255, 255, 255, 0.95);
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --bg-glass: rgba(255, 255, 255, 0.8);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-color: #0ea5e9;
+            --purple-accent: #8b5cf6;
+            --green-accent: #10b981;
+            --red-accent: #ef4444;
+            --gold-accent: #f59e0b;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body { 
+            background: var(--bg-primary);
+            color: var(--text-primary); 
+            line-height: 1.6; 
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+        }
+
+        .theme-toggle {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-card);
+        }
+
+        .logout-btn {
+            background: var(--red-accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Setup Screens */
+        .setup-screen {
+            display: none;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: calc(100vh - 71px);
+        }
+
+        .setup-screen.active {
+            display: block;
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .setup-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .setup-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: var(--bg-card);
+            border-radius: 2px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* Category Selection Cards */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .category-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .category-card.selected {
+            border-color: var(--accent-color);
+            background: rgba(34, 211, 238, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .category-card:hover::before {
+            left: 100%;
+        }
+
+        .category-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .category-card.forex .category-icon {
+            color: var(--accent-color);
+        }
+
+        .category-card.stocks .category-icon {
+            color: var(--green-accent);
+        }
+
+        .category-card.crypto .category-icon {
+            color: var(--gold-accent);
+        }
+
+        .category-card.commodities .category-icon {
+            color: var(--purple-accent);
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .category-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .category-count {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Symbol Selection */
+        .symbol-section {
+            margin-bottom: 40px;
+        }
+
+        .symbol-section h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .symbol-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .symbol-card:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-glass);
+        }
+
+        .symbol-card.selected {
+            border-color: var(--accent-color);
+            background: rgba(34, 211, 238, 0.1);
+        }
+
+        .symbol-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .symbol-description {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Action Buttons */
+        .setup-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .setup-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setup-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .setup-btn.primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .setup-btn.primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .setup-btn.secondary {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .setup-btn.secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-color);
+        }
+
+        /* Main Dashboard (from previous version) */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 71px;
+            width: 250px;
+            height: calc(100vh - 71px);
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 25px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 2px 15px;
+            border-radius: 10px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--bg-glass);
+            color: var(--accent-color);
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .nav-item i {
+            margin-right: 12px;
+            width: 20px;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding: 30px;
+            min-height: calc(100vh - 71px);
+            display: none;
+        }
+
+        .main-content.active {
+            display: block;
+            margin-left: 250px;
+        }
+
+        .sidebar.active {
+            display: block;
+        }
+
+        .welcome-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .plan-badge {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .stat-change.positive { color: var(--green-accent); }
+        .stat-change.negative { color: var(--red-accent); }
+
+        .signals-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .signal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: var(--bg-glass);
+            transition: all 0.3s ease;
+        }
+
+        .signal-item:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-color);
+        }
+
+        .signal-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .signal-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .signal-icon.buy {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green-accent);
+        }
+
+        .signal-icon.sell {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red-accent);
+        }
+
+        .signal-details h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .signal-details p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .signal-right {
+            text-align: right;
+        }
+
+        .signal-price {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .signal-confidence {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            margin-top: 2px;
+        }
+
+        .chart-container {
+            height: 300px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder {
+            text-align: center;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 150px;
+            background: var(--success-gradient);
+            border-radius: 8px;
+            opacity: 0.3;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .market-item:last-child {
+            border-bottom: none;
+        }
+
+        .market-symbol {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .market-price {
+            text-align: right;
+        }
+
+        .market-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .market-change {
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+
+        .market-change.positive { color: var(--green-accent); }
+        .market-change.negative { color: var(--red-accent); }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .setup-screen {
+                padding: 20px;
+            }
+
+            .setup-title {
+                font-size: 2rem;
+            }
+
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .symbol-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+
+            .setup-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .setup-btn {
+                width: 200px;
+                justify-content: center;
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content.active {
+                margin-left: 200px;
+                padding: 20px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .main-content.active {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .header {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">TradeMind AI</div>
+        <div class="header-right">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="userName">Loading...</span>
+                <span class="plan-badge" id="userPlan">FREE</span>
+            </div>
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <i id="theme-icon" class="fas fa-sun"></i>
+                <span id="theme-text">Light</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Category Selection Screen -->
+    <div id="categoryScreen" class="setup-screen active">
+        <div class="setup-header">
+            <h1 class="setup-title">Choose Your Trading Markets</h1>
+            <p class="setup-subtitle">Select the markets you want to trade and receive AI signals for</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 33%"></div>
+            </div>
+        </div>
+
+        <div class="category-grid">
+            <div class="category-card forex" onclick="toggleCategory('forex')">
+                <div class="category-count">28 pairs</div>
+                <div class="category-icon">
+                    <i class="fas fa-globe-americas"></i>
+                </div>
+                <h3 class="category-title">Forex</h3>
+                <p class="category-description">Trade major, minor and exotic currency pairs with 24/5 market access</p>
+            </div>
+
+            <div class="category-card stocks" onclick="toggleCategory('stocks')">
+                <div class="category-count">500+ stocks</div>
+                <div class="category-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3 class="category-title">Stocks</h3>
+                <p class="category-description">Access to US, European and Asian stock markets with real-time data</p>
+            </div>
+
+            <div class="category-card crypto" onclick="toggleCategory('crypto')">
+                <div class="category-count">50+ coins</div>
+                <div class="category-icon">
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+                <h3 class="category-title">Crypto</h3>
+                <p class="category-description">Trade Bitcoin, Ethereum, Altcoins with 24/7 market opportunities</p>
+            </div>
+
+            <div class="category-card commodities" onclick="toggleCategory('commodities')">
+                <div class="category-count">15+ assets</div>
+                <div class="category-icon">
+                    <i class="fas fa-oil-can"></i>
+                </div>
+                <h3 class="category-title">Commodities</h3>
+                <p class="category-description">Trade gold, silver, oil, agricultural products and other commodities</p>
+            </div>
+        </div>
+
+        <div class="setup-actions">
+            <button class="setup-btn secondary" onclick="skipSetup()">
+                <i class="fas fa-forward"></i> Skip Setup
+            </button>
+            <button class="setup-btn primary" id="continueToSymbols" onclick="goToSymbolSelection()" disabled>
+                <i class="fas fa-arrow-right"></i> Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- Symbol Selection Screen -->
+    <div id="symbolScreen" class="setup-screen">
+        <div class="setup-header">
+            <h1 class="setup-title">Select Your Favorite Symbols</h1>
+            <p class="setup-subtitle">Choose specific instruments you want to focus on</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 66%"></div>
+            </div>
+        </div>
+
+        <div id="symbolSections"></div>
+
+        <div class="setup-actions">
+            <button class="setup-btn secondary" onclick="goBackToCategories()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button class="setup-btn secondary" onclick="skipSetup()">
+                <i class="fas fa-forward"></i> Skip
+            </button>
+            <button class="setup-btn primary" id="finishSetup" onclick="finishSetup()" disabled>
+                <i class="fas fa-check"></i> Finish Setup
+            </button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="nav-item active">
+            <i class="fas fa-tachometer-alt"></i>
+            Dashboard
+        </a>
+        <a href="trading.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            Trading Signals
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-briefcase"></i>
+            Portfolio
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-robot"></i>
+            AI Assistant
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-calendar-alt"></i>
+            Economic Calendar
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-newspaper"></i>
+            Market News
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-cog"></i>
+            Settings
+        </a>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="main-content">
+        <div class="welcome-section">
+            <h1 class="welcome-title" id="welcomeTitle">Welcome back!</h1>
+            <p style="color: var(--text-secondary);">Your personalized AI-powered trading dashboard is ready with your selected markets and symbols.</p>
+            <div class="action-buttons">
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Trade
+                </button>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-chart-area"></i> View Analysis
+                </button>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-bell"></i> Set Alerts
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Portfolio Value</h3>
+                    <i class="fas fa-wallet card-icon"></i>
+                </div>
+                <div class="stat-value">$24,580</div>
+                <div class="stat-label">Total Balance</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +$1,245 (5.34%) today
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Win Rate</h3>
+                    <i class="fas fa-target card-icon"></i>
+                </div>
+                <div class="stat-value">87.5%</div>
+                <div class="stat-label">Success Rate</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +2.1% this week
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Active Trades</h3>
+                    <i class="fas fa-chart-line card-icon"></i>
+                </div>
+                <div class="stat-value">12</div>
+                <div class="stat-label">Open Positions</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-plus"></i>
+                    3 new today
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Latest Signals</h3>
+                    <i class="fas fa-robot card-icon"></i>
+                </div>
+                <div class="signals-list" id="selectedSignals">
+                    <!-- Dynamic signals based on user selection -->
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Performance Chart</h3>
+                    <i class="fas fa-chart-area card-icon"></i>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 15px;"></i>
+                        <p>Interactive trading chart for your selected symbols</p>
+                        <p style="font-size: 0.8rem; margin-top: 10px;">Real-time data for your personalized portfolio</p>
+                    </div>
+                    <div class="chart-line"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your Markets</h3>
+                    <i class="fas fa-globe card-icon"></i>
+                </div>
+                <div id="selectedMarkets">
+                    <!-- Dynamic market data based on user selection -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedCategories = [];
+        let selectedSymbols = {};
+        let currentStep = 'categories';
+
+        // Symbol data for each category
+        const symbolData = {
+            forex: [
+                { symbol: 'EURUSD', name: 'Euro/US Dollar' },
+                { symbol: 'GBPUSD', name: 'British Pound/US Dollar' },
+                { symbol: 'USDJPY', name: 'US Dollar/Japanese Yen' },
+                { symbol: 'AUDUSD', name: 'Australian Dollar/US Dollar' },
+                { symbol: 'USDCAD', name: 'US Dollar/Canadian Dollar' },
+                { symbol: 'NZDUSD', name: 'New Zealand Dollar/US Dollar' },
+                { symbol: 'EURGBP', name: 'Euro/British Pound' },
+                { symbol: 'EURJPY', name: 'Euro/Japanese Yen' },
+                { symbol: 'GBPJPY', name: 'British Pound/Japanese Yen' },
+                { symbol: 'AUDJPY', name: 'Australian Dollar/Japanese Yen' },
+                { symbol: 'CHFJPY', name: 'Swiss Franc/Japanese Yen' },
+                { symbol: 'EURCHF', name: 'Euro/Swiss Franc' }
+            ],
+            stocks: [
+                { symbol: 'AAPL', name: 'Apple Inc.' },
+                { symbol: 'MSFT', name: 'Microsoft Corp.' },
+                { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+                { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+                { symbol: 'TSLA', name: 'Tesla Inc.' },
+                { symbol: 'META', name: 'Meta Platforms Inc.' },
+                { symbol: 'NVDA', name: 'NVIDIA Corp.' },
+                { symbol: 'NFLX', name: 'Netflix Inc.' },
+                { symbol: 'AMD', name: 'Advanced Micro Devices' },
+                { symbol: 'BABA', name: 'Alibaba Group' },
+                { symbol: 'DIS', name: 'Walt Disney Co.' },
+                { symbol: 'PYPL', name: 'PayPal Holdings Inc.' }
+            ],
+            crypto: [
+                { symbol: 'BTCUSD', name: 'Bitcoin' },
+                { symbol: 'ETHUSD', name: 'Ethereum' },
+                { symbol: 'BNBUSD', name: 'Binance Coin' },
+                { symbol: 'ADAUSD', name: 'Cardano' },
+                { symbol: 'SOLUSD', name: 'Solana' },
+                { symbol: 'XRPUSD', name: 'Ripple' },
+                { symbol: 'DOTUSD', name: 'Polkadot' },
+                { symbol: 'DOGEUSD', name: 'Dogecoin' },
+                { symbol: 'AVAXUSD', name: 'Avalanche' },
+                { symbol: 'SHIBUSD', name: 'Shiba Inu' },
+                { symbol: 'MATICUSD', name: 'Polygon' },
+                { symbol: 'LINKUSD', name: 'Chainlink' }
+            ],
+            commodities: [
+                { symbol: 'XAUUSD', name: 'Gold' },
+                { symbol: 'XAGUSD', name: 'Silver' },
+                { symbol: 'WTIUSD', name: 'Crude Oil WTI' },
+                { symbol: 'XPTUSD', name: 'Platinum' },
+                { symbol: 'XPDUSD', name: 'Palladium' },
+                { symbol: 'NATGAS', name: 'Natural Gas' },
+                { symbol: 'WHEAT', name: 'Wheat' },
+                { symbol: 'CORN', name: 'Corn' },
+                { symbol: 'COFFEE', name: 'Coffee' },
+                { symbol: 'SUGAR', name: 'Sugar' },
+                { symbol: 'COCOA', name: 'Cocoa' },
+                { symbol: 'COPPER', name: 'Copper' }
+            ]
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+        });
+
+        function loadUserData() {
+            const userData = window.userSession || {
+                name: 'Alex Thompson',
+                email: 'demo@trademind.ai',
+                plan: 'pro'
+            };
+
+            document.getElementById('userName').textContent = userData.name;
+            document.getElementById('userPlan').textContent = userData.plan.toUpperCase();
+            
+            console.log('Dashboard setup loaded for user:', userData);
+        }
+
+        function toggleCategory(category) {
+            const card = document.querySelector(`.category-card.${category}`);
+            const index = selectedCategories.indexOf(category);
+            
+            if (index > -1) {
+                selectedCategories.splice(index, 1);
+                card.classList.remove('selected');
+                delete selectedSymbols[category];
+            } else {
+                selectedCategories.push(category);
+                card.classList.add('selected');
+                selectedSymbols[category] = [];
+            }
+            
+            updateContinueButton();
+        }
+
+        function updateContinueButton() {
+            const continueBtn = document.getElementById('continueToSymbols');
+            continueBtn.disabled = selectedCategories.length === 0;
+        }
+
+        function goToSymbolSelection() {
+            if (selectedCategories.length === 0) return;
+            
+            document.getElementById('categoryScreen').classList.remove('active');
+            document.getElementById('symbolScreen').classList.add('active');
+            
+            generateSymbolSections();
+            currentStep = 'symbols';
+        }
+
+        function generateSymbolSections() {
+            const container = document.getElementById('symbolSections');
+            container.innerHTML = '';
+            
+            selectedCategories.forEach(category => {
+                const section = document.createElement('div');
+                section.className = 'symbol-section';
+                
+                const categoryIcons = {
+                    forex: 'fas fa-globe-americas',
+                    stocks: 'fas fa-chart-bar',
+                    crypto: 'fab fa-bitcoin',
+                    commodities: 'fas fa-oil-can'
+                };
+                
+                section.innerHTML = `
+                    <h3>
+                        <i class="${categoryIcons[category]}"></i>
+                        ${category.charAt(0).toUpperCase() + category.slice(1)} Symbols
+                    </h3>
+                    <div class="symbol-grid" id="symbols-${category}">
+                        ${symbolData[category].map(symbol => `
+                            <div class="symbol-card" onclick="toggleSymbol('${category}', '${symbol.symbol}')">
+                                <div class="symbol-name">${symbol.symbol}</div>
+                                <div class="symbol-description">${symbol.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(section);
+            });
+        }
+
+        function toggleSymbol(category, symbol) {
+            const card = document.querySelector(`#symbols-${category} .symbol-card`);
+            const cards = document.querySelectorAll(`#symbols-${category} .symbol-card`);
+            
+            // Find the specific card
+            let targetCard = null;
+            cards.forEach(card => {
+                if (card.querySelector('.symbol-name').textContent === symbol) {
+                    targetCard = card;
+                }
+            });
+            
+            if (!targetCard) return;
+            
+            const index = selectedSymbols[category].indexOf(symbol);
+            
+            if (index > -1) {
+                selectedSymbols[category].splice(index, 1);
+                targetCard.classList.remove('selected');
+            } else {
+                selectedSymbols[category].push(symbol);
+                targetCard.classList.add('selected');
+            }
+            
+            updateFinishButton();
+        }
+
+        function updateFinishButton() {
+            const finishBtn = document.getElementById('finishSetup');
+            const hasSelections = Object.values(selectedSymbols).some(symbols => symbols.length > 0);
+            finishBtn.disabled = !hasSelections;
+        }
+
+        function goBackToCategories() {
+            document.getElementById('symbolScreen').classList.remove('active');
+            document.getElementById('categoryScreen').classList.add('active');
+            currentStep = 'categories';
+        }
+
+        function skipSetup() {
+            // Set default selections for demo
+            selectedCategories = ['forex', 'stocks', 'crypto'];
+            selectedSymbols = {
+                forex: ['EURUSD', 'GBPUSD', 'USDJPY'],
+                stocks: ['AAPL', 'MSFT', 'GOOGL'],
+                crypto: ['BTCUSD', 'ETHUSD']
+            };
+            
+            finishSetup();
+        }
+
+        function finishSetup() {
+            // Hide setup screens
+            document.querySelectorAll('.setup-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show main dashboard
+            document.querySelector('.sidebar').classList.add('active');
+            document.querySelector('.main-content').classList.add('active');
+            
+            // Initialize dashboard with user selections
+            initializePersonalizedDashboard();
+        }
+
+        function initializePersonalizedDashboard() {
+            const userName = document.getElementById('userName').textContent.split(' ')[0];
+            document.getElementById('welcomeTitle').textContent = `Welcome back, ${userName}!`;
+            
+            generatePersonalizedSignals();
+            generatePersonalizedMarkets();
+            
+            // Start real-time updates
+            setInterval(updateMarketData, 5000);
+            
+            console.log('Dashboard initialized with selections:', {
+                categories: selectedCategories,
+                symbols: selectedSymbols
+            });
+        }
+
+        function generatePersonalizedSignals() {
+            const signalsContainer = document.getElementById('selectedSignals');
+            const signals = [];
+            
+            // Generate signals based on selected symbols
+            Object.keys(selectedSymbols).forEach(category => {
+                selectedSymbols[category].slice(0, 2).forEach(symbol => {
+                    const isLongSignal = Math.random() > 0.5;
+                    const confidence = Math.floor(Math.random() * 15) + 85; // 85-99%
+                    const timeAgo = Math.floor(Math.random() * 30) + 1; // 1-30 minutes
+                    
+                    signals.push({
+                        symbol: symbol,
+                        action: isLongSignal ? 'BUY' : 'SELL',
+                        confidence: confidence,
+                        timeAgo: timeAgo,
+                        price: generateRandomPrice(symbol)
+                    });
+                });
+            });
+            
+            signalsContainer.innerHTML = signals.map(signal => `
+                <div class="signal-item">
+                    <div class="signal-left">
+                        <div class="signal-icon ${signal.action.toLowerCase()}">${signal.action}</div>
+                        <div class="signal-details">
+                            <h4>${signal.symbol}</h4>
+                            <p>${signal.timeAgo} minutes ago</p>
+                        </div>
+                    </div>
+                    <div class="signal-right">
+                        <div class="signal-price">${signal.price}</div>
+                        <div class="signal-confidence">${signal.confidence}% confidence</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function generatePersonalizedMarkets() {
+            const marketsContainer = document.getElementById('selectedMarkets');
+            const markets = [];
+            
+            // Generate market data for selected symbols
+            Object.keys(selectedSymbols).forEach(category => {
+                selectedSymbols[category].slice(0, 4).forEach(symbol => {
+                    const changePercent = (Math.random() - 0.5) * 6; // -3% to +3%
+                    const price = generateRandomPrice(symbol);
+                    
+                    markets.push({
+                        symbol: symbol,
+                        price: price,
+                        change: changePercent
+                    });
+                });
+            });
+            
+            marketsContainer.innerHTML = markets.map(market => `
+                <div class="market-item">
+                    <div class="market-symbol">${market.symbol}</div>
+                    <div class="market-price">
+                        <div class="market-value">${market.price}</div>
+                        <div class="market-change ${market.change >= 0 ? 'positive' : 'negative'}">
+                            ${market.change >= 0 ? '+' : ''}${market.change.toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function generateRandomPrice(symbol) {
+            const priceRanges = {
+                // Forex pairs
+                'EURUSD': { min: 1.05, max: 1.15, decimals: 4 },
+                'GBPUSD': { min: 1.20, max: 1.30, decimals: 4 },
+                'USDJPY': { min: 140, max: 155, decimals: 2 },
+                'AUDUSD': { min: 0.65, max: 0.75, decimals: 4 },
+                
+                // Stocks
+                'AAPL': { min: 170, max: 200, decimals: 2, prefix: '$' },
+                'MSFT': { min: 350, max: 400, decimals: 2, prefix: '$' },
+                'GOOGL': { min: 130, max: 150, decimals: 2, prefix: '$' },
+                'TSLA': { min: 200, max: 250, decimals: 2, prefix: '$' },
+                
+                // Crypto
+                'BTCUSD': { min: 40000, max: 50000, decimals: 0, prefix: '$' },
+                'ETHUSD': { min: 2500, max: 3500, decimals: 0, prefix: '$' },
+                'BNBUSD': { min: 300, max: 400, decimals: 2, prefix: '$' },
+                
+                // Commodities
+                'XAUUSD': { min: 1950, max: 2050, decimals: 2, prefix: '$' },
+                'XAGUSD': { min: 23, max: 26, decimals: 2, prefix: '$' },
+                'WTIUSD': { min: 75, max: 85, decimals: 2, prefix: '$' }
+            };
+            
+            const range = priceRanges[symbol] || { min: 1, max: 100, decimals: 2, prefix: '$' };
+            const price = Math.random() * (range.max - range.min) + range.min;
+            
+            return `${range.prefix || ''}${price.toFixed(range.decimals)}`;
+        }
+
+        function updateMarketData() {
+            document.querySelectorAll('.market-value').forEach(item => {
+                const currentValue = parseFloat(item.textContent.replace(/[$,]/g, ''));
+                const change = (Math.random() - 0.5) * 0.01;
+                const newValue = currentValue * (1 + change);
+                
+                if (item.textContent.includes('$')) {
+                    item.textContent = '$' + newValue.toFixed(2);
+                } else {
+                    item.textContent = newValue.toFixed(2);
+                }
+            });
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            
+            if (newTheme === 'light') {
+                themeIcon.className = 'fas fa-moon';
+                themeText.textContent = 'Dark';
+            } else {
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'Light';
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.userSession = null;
+                alert('Logged out successfully. Redirecting to home page...');
+                console.log('Redirecting to index.html');
+                // window.location.href = 'index.html';
+            }
+        }
+
+        // Action button handlers
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.btn')) {
+                const action = e.target.textContent.trim();
+                
+                switch(action) {
+                    case 'New Trade':
+                        alert('Opening trade execution panel for your selected symbols...');
+                        break;
+                    case 'View Analysis':
+                        alert('Loading AI analysis for your personalized portfolio...');
+                        break;
+                    case 'Set Alerts':
+                        alert('Configure alerts for your selected markets and symbols...');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
