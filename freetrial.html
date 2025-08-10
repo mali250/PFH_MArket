@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TradeMind AI - AI Trading Intelligence Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-XxCgZcVt1a2n6Tsw5qGqfFi9d6iBblp2Re/ndFpqX84XmrpQxvNKXpT7b9BqEqgWlcmZ9ZjLM7XvRY7+8i3Lmw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;     
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --bg-primary: #0a0d1a;
+            --bg-secondary: rgba(15, 23, 42, 0.8);
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5d6;
+            --accent-color: #22d3ee;
+            --purple-accent: #8b5cf6;
+            --green-accent: #10b981;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(0, 0, 0, 0.3);
+            --bg-animation: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                           radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                           radial-gradient(circle at 40% 80%, rgba(120, 219, 226, 0.3) 0%, transparent 50%);
+        }
+
+        /* Light Theme Variables */
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(255, 255, 255, 0.95);
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --bg-glass: rgba(255, 255, 255, 0.8);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-color: #0ea5e9;
+            --purple-accent: #8b5cf6;
+            --green-accent: #10b981;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow: rgba(0, 0, 0, 0.1);
+            --bg-animation: radial-gradient(circle at 20% 50%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+                           radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                           radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+        }
+
+        body { 
+            background: var(--bg-primary);
+            color: var(--text-primary); 
+            line-height: 1.6; 
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Page Management */
+        .page {
+            display: none;
+            min-height: 100vh;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: pageSlideIn 0.5s ease-out;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--bg-secondary);
+            z-index: 1001;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-gradient);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--text-primary);
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 10px 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-left: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--shadow);
+            border-color: var(--accent-color);
+        }
+
+        .theme-toggle i {
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--bg-primary);
+            transition: background 0.3s ease;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-animation);
+            animation: float 20s ease-in-out infinite;
+            transition: background 0.3s ease;
+        }
+
+        /* Header */
+        header { 
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary); 
+            padding: 20px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        header h1 { 
+            font-size: 1.8rem; 
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
+        nav a { 
+            color: var(--text-secondary); 
+            margin-left: 20px; 
+            text-decoration: none; 
+            font-weight: 500; 
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover { 
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .cta-btn { 
+            margin-left: 20px; 
+            background: var(--primary-gradient);
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        /* STOCK ANALYSIS PAGE STYLES */
+        .analysis-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            position: relative;
+            padding: 60px 40px;
+        }
+
+        .analysis-form {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 50px 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: slideInUp 1s ease-out;
+        }
+
+        .analysis-form h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .analysis-form p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 20px 60px 20px 20px;
+            font-size: 1.1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .input-group i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(20px);
+        }
+
+        .suggestion-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .suggestion-item:hover {
+            background: var(--bg-glass);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-symbol {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .suggestion-name {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 20px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* REGISTRATION PAGE STYLES */
+        .registration-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 60px 40px;
+        }
+
+        .registration-form {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 50px 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: slideInUp 1s ease-out;
+        }
+
+        .registration-form h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .registration-form .subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.1);
+        }
+
+        .phone-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .country-select {
+            flex: 0 0 120px;
+            padding: 16px 15px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .country-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.1);
+        }
+
+        .platform-selection {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .platform-option {
+            flex: 1;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .platform-option:hover {
+            background: var(--bg-glass);
+            border-color: var(--accent-color);
+        }
+
+        .platform-option.selected {
+            background: var(--bg-glass);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.1);
+        }
+
+        .platform-option i {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .platform-option span {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        /* SUCCESS PAGE STYLES */
+        .success-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .success-content {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: slideInUp 1s ease-out;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: var(--green-accent);
+            margin-bottom: 30px;
+            animation: bounce 1s ease-out;
+        }
+
+        .success-content h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .success-content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .whatsapp-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .whatsapp-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.6);
+        }
+
+        .whatsapp-btn i {
+            font-size: 1.5rem;
+        }
+
+        /* LANDING PAGE STYLES (Original) */
+        .hero { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            min-height: 80vh;
+            padding: 120px 40px;
+            position: relative;
+        }
+
+        .hero-text { 
+            max-width: 600px; 
+            z-index: 2;
+        }
+
+        .hero-text h2 { 
+            font-size: 4rem; 
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px; 
+            line-height: 1.1;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        .hero-text p { 
+            font-size: 1.2rem; 
+            margin-bottom: 40px; 
+            color: var(--text-secondary);
+            animation: slideInLeft 1s ease-out 0.2s both;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            animation: slideInLeft 1s ease-out 0.4s both;
+        }
+
+        .cta-group button { 
+            padding: 16px 32px; 
+            border-radius: 50px; 
+            border: none; 
+            font-size: 1rem; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary { 
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary { 
+            background: var(--bg-glass);
+            color: var(--text-primary); 
+            border: 2px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            transform: translateY(-3px);
+            border-color: var(--accent-color);
+        }
+
+        .hero-image { 
+            position: relative;
+            animation: slideInRight 1s ease-out 0.6s both;
+        }
+
+        .dashboard-mockup {
+            width: 600px;
+            height: 400px;
+            background: var(--bg-glass);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-mockup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 60px;
+            left: 40px;
+            right: 40px;
+            height: 200px;
+            background: var(--success-gradient);
+            border-radius: 10px;
+            opacity: 0.4;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .floating-cards {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 120px;
+            height: 80px;
+            background: rgba(34, 211, 238, 0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            animation: floatCard 3s ease-in-out infinite;
+        }
+
+        .floating-cards:nth-child(2) {
+            top: 100px;
+            left: -30px;
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.3);
+            animation-delay: 1s;
+        }
+
+        /* Rest of original styles... */
+        section { 
+            padding: 80px 40px; 
+            position: relative;
+        }
+
+        .grid-3 { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+            gap: 40px;     
+        }
+
+        .card { 
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            padding: 40px 30px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .card:hover { 
+            transform: translateY(-10px);
+            border-color: var(--accent-color);
+            box-shadow: 0 20px 40px var(--shadow);
+        }
+
+        .card i { 
+            font-size: 3rem; 
+            margin-bottom: 20px; 
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card h4 { 
+            font-size: 1.4rem; 
+            margin-bottom: 15px; 
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .testimonial { 
+            font-style: italic; 
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent-color);
+            text-align: left;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .testimonial strong {
+            color: var(--text-primary);
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        footer { 
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            color: var(--text-secondary); 
+            padding: 50px 40px; 
+            text-align: center; 
+            border-top: 1px solid var(--border-color);
+        }
+
+        footer a { 
+            color: var(--accent-color); 
+            margin: 0 15px; 
+            text-decoration: none; 
+            transition: all 0.3s ease;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pageSlideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translate(0px, 0px); }
+            50% { transform: translate(10px, -10px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                gap: 60px;
+                padding: 80px 20px;
+            }
+
+            .hero-text h2 {
+                font-size: 2.5rem;
+            }
+
+            .dashboard-mockup {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .theme-toggle {
+                order: -1;
+                margin: 0;
+                font-size: 0.8rem;
+                padding: 8px 15px;
+            }
+
+            .cta-btn {
+                margin: 0;
+                order: 1;
+            }
+
+            section {
+                padding: 60px 20px;
+            }
+
+            .analysis-form, .registration-form, .success-content {
+                padding: 40px 25px;
+                margin: 0 20px;
+            }
+
+            .back-btn {
+                top: 20px;
+                left: 20px;
+            }
+
+            .phone-input-group {
+                flex-direction: column;
+            }
+
+            .country-select {
+                flex: none;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="bg-animation"></div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Analyzing market data...</div>
+    </div>
+
+    <!-- PAGE 1: LANDING PAGE -->
+    <div id="landingPage" class="page active">
+        <header>
+            <h1 onclick="goToPage('landingPage')">TradeMind AI</h1>
+            <nav>
+                <a href="#why">Why Us</a>
+                <a href="#how">How It Works</a>
+                <a href="#plans">Pricing</a>
+                <a href="#reviews">Reviews</a>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i id="theme-icon" class="fas fa-sun"></i>
+                    <span id="theme-text">Light</span>
+                </div>
+                <button class="cta-btn" onclick="goToStockAnalysis()">Start Free Trial</button>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-text">
+                <h2>AI Trading Intelligence Platform</h2>
+                <p>Revolutionary AI-powered insights, real-time signals, and intelligent strategies for stocks, crypto, forex, and more. Replace 5+ trading tools with one powerful platform.</p>
+                <div class="cta-group">
+                    <button class="btn-primary" onclick="goToStockAnalysis()">Start Free Trial</button>
+                    <button class="btn-secondary">Watch Demo</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="dashboard-mockup">
+                    <div class="chart-line"></div>
+                    <div class="floating-cards"></div>
+                    <div class="floating-cards"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="why">
+            <h3 class="section-title">Why TradeMind AI?</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <i class="fas fa-brain"></i>
+                    <h4>Real-Time AI Intelligence</h4>
+                    <p>Advanced machine learning algorithms analyze market data 24/7, delivering actionable insights and high-accuracy trading signals instantly.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-layer-group"></i>
+                    <h4>All-in-One Trading Platform</h4>
+                    <p>Eliminate the complexity of multiple tools. Get signals, alerts, portfolio analysis, strategy building, and trading journal all in one seamless dashboard.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-rocket"></i>
+                    <h4>Performance-Driven Growth</h4>
+                    <p>Track every trade, analyze your edge, and continuously improve with AI-powered feedback, coaching, and personalized trading recommendations.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="reviews">
+            <h3 class="section-title">What Our Traders Say</h3>
+            <div class="grid-3">
+                <div class="testimonial">
+                    <p>"TradeMind AI completely transformed my trading approach. I went from juggling 5 different apps to having everything I need in one powerful dashboard. The AI signals are incredibly accurate, and I've seen a 40% improvement in my win rate since switching."</p>
+                    <strong>— Imran R., Professional Trader, Dubai</strong>
+                </div>
+                <div class="testimonial">
+                    <p>"The AI feedback and portfolio analysis features are game-changers. I can finally see exactly what's working in my strategy and what isn't. My trading accuracy jumped from 65% to 85% in just three months using this platform."</p>
+                    <strong>— Lina K., Swing Trader, London</strong>
+                </div>
+                <div class="testimonial">
+                    <p>"As a beginner, I was overwhelmed by all the trading tools out there. TradeMind AI's AI assistant guided me through every step, and the educational features helped me understand market dynamics. Now I'm trading confidently and profitably."</p>
+                    <strong>— Sarah M., New Trader, New York</strong>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2024 TradeMind AI. All rights reserved.</p>
+            <div>
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#contact">Contact</a>
+                <a href="#support">Support</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- PAGE 2: STOCK ANALYSIS -->
+    <div id="stockAnalysisPage" class="page">
+        <header>
+            <h1 onclick="goToPage('landingPage')">TradeMind AI</h1>
+            <nav>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i id="theme-icon-2" class="fas fa-sun"></i>
+                    <span id="theme-text-2">Light</span>
+                </div>
+            </nav>
+        </header>
+
+        <a href="#" class="back-btn" onclick="goToPage('landingPage')">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+        </a>
+
+        <div class="analysis-hero">
+            <div class="analysis-form">
+                <h2>Stock Analysis</h2>
+                <p>Enter any stock symbol or company name to get instant AI-powered analysis and trading signals.</p>
+                
+                <form id="stockAnalysisForm">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="stockInput" 
+                            placeholder="Enter stock symbol (e.g., AAPL, TSLA) or company name"
+                            autocomplete="off"
+                        >
+                        <i class="fas fa-search"></i>
+                        <div class="suggestions" id="suggestions"></div>
+                    </div>
+                    
+                    <button type="submit" class="analyze-btn" id="analyzeBtn">
+                        <i class="fas fa-chart-line"></i>
+                        Begin Analysis
+                    </button>
+                </form>
+
+                <div style="margin-top: 30px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                    <i class="fas fa-lock" style="margin-right: 8px;"></i>
+                    Your data is secure and encrypted
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: REGISTRATION -->
+    <div id="registrationPage" class="page">
+        <header>
+            <h1 onclick="goToPage('landingPage')">TradeMind AI</h1>
+            <nav>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i id="theme-icon-3" class="fas fa-sun"></i>
+                    <span id="theme-text-3">Light</span>
+                </div>
+            </nav>
+        </header>
+
+        <a href="#" class="back-btn" onclick="goToPage('stockAnalysisPage')">
+            <i class="fas fa-arrow-left"></i>
+            Back to Analysis
+        </a>
+
+        <div class="registration-hero">
+            <div class="registration-form">
+                <h2>Get Your Analysis</h2>
+                <p class="subtitle">Complete your free registration to receive your <span id="selectedStock" style="color: var(--accent-color); font-weight: 600;"></span> analysis via WhatsApp or Telegram</p>
+                
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Choose Your Platform</label>
+                        <div class="platform-selection">
+                            <div class="platform-option" data-platform="whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>WhatsApp</span>
+                            </div>
+                            <div class="platform-option" data-platform="telegram">
+                                <i class="fab fa-telegram"></i>
+                                <span>Telegram</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label id="phoneLabel">WhatsApp Number</label>
+                        <div class="phone-input-group">
+                            <select class="country-select" id="countryCode">
+                                <option value="+971">🇦🇪 +971</option>
+                                <option value="+1">🇺🇸 +1</option>
+                                <option value="+44">🇬🇧 +44</option>
+                                <option value="+91">🇮🇳 +91</option>
+                                <option value="+966">🇸🇦 +966</option>
+                                <option value="+973">🇧🇭 +973</option>
+                                <option value="+974">🇶🇦 +974</option>
+                                <option value="+965">🇰🇼 +965</option>
+                            </select>
+                            <input type="tel" id="phoneNumber" placeholder="501234567" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="register-btn" id="registerBtn">
+                        <i class="fas fa-rocket"></i>
+                        Get My Free Analysis
+                    </button>
+                </form>
+
+                <div style="margin-top: 25px; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">
+                    By registering, you agree to receive trading signals and analysis via your chosen platform
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: SUCCESS & WHATSAPP -->
+    <div id="successPage" class="page">
+        <header>
+            <h1 onclick="goToPage('landingPage')">TradeMind AI</h1>
+            <nav>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i id="theme-icon-4" class="fas fa-sun"></i>
+                    <span id="theme-text-4">Light</span>
+                </div>
+            </nav>
+        </header>
+
+        <div class="success-hero">
+            <div class="success-content">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Registration Successful!</h2>
+                <p>Welcome to TradeMind AI! Your <span id="analysisStock" style="color: var(--accent-color); font-weight: 600;"></span> analysis is ready. Click below to continue on <span id="selectedPlatform" style="color: var(--accent-color); font-weight: 600;"></span> and receive your free trading signals.</p>
+                
+                <a href="#" class="whatsapp-btn" id="platformBtn" onclick="openPlatformChat()">
+                    <i class="fab fa-whatsapp"></i>
+                    Continue on WhatsApp
+                </a>
+
+                <div style="margin-top: 30px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                    <i class="fas fa-shield-alt" style="margin-right: 8px; color: var(--green-accent);"></i>
+                    Your information is secure and will never be shared
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentPage = 'landingPage';
+        let selectedStock = '';
+        let userPlatform = 'whatsapp';
+        let userData = {};
+
+        // Stock symbols database for suggestions
+        const stockDatabase = [
+            { symbol: 'AAPL', name: 'Apple Inc.' },
+            { symbol: 'TSLA', name: 'Tesla Inc.' },
+            { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+            { symbol: 'MSFT', name: 'Microsoft Corporation' },
+            { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+            { symbol: 'NVDA', name: 'NVIDIA Corporation' },
+            { symbol: 'META', name: 'Meta Platforms Inc.' },
+            { symbol: 'NFLX', name: 'Netflix Inc.' },
+            { symbol: 'AMD', name: 'Advanced Micro Devices' },
+            { symbol: 'BABA', name: 'Alibaba Group' },
+            { symbol: 'BTC-USD', name: 'Bitcoin' },
+            { symbol: 'ETH-USD', name: 'Ethereum' },
+            { symbol: 'SPY', name: 'SPDR S&P 500 ETF' },
+            { symbol: 'QQQ', name: 'Invesco QQQ Trust' }
+        ];
+
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            
+            // Update all theme toggle buttons
+            const themeIcons = document.querySelectorAll('[id^="theme-icon"]');
+            const themeTexts = document.querySelectorAll('[id^="theme-text"]');
+            
+            themeIcons.forEach(icon => {
+                icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            });
+            
+            themeTexts.forEach(text => {
+                text.textContent = newTheme === 'light' ? 'Dark' : 'Light';
+            });
+        }
+
+        // Page Navigation
+        function goToPage(pageId) {
+            // Hide current page
+            document.querySelector('.page.active').classList.remove('active');
+            
+            // Show loading if going to a new page (except back to landing)
+            if (pageId !== 'landingPage') {
+                showLoading();
+                setTimeout(() => {
+                    hideLoading();
+                    showPage(pageId);
+                }, 1000);
+            } else {
+                showPage(pageId);
+            }
+            
+            // Update progress bar
+            updateProgressBar(pageId);
+        }
+
+        function showPage(pageId) {
+            currentPage = pageId;
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function updateProgressBar(pageId) {
+            const progressBar = document.getElementById('progressBar');
+            let width = 0;
+            
+            switch(pageId) {
+                case 'landingPage': width = 0; break;
+                case 'stockAnalysisPage': width = 33; break;
+                case 'registrationPage': width = 66; break;
+                case 'successPage': width = 100; break;
+            }
+            
+            progressBar.style.width = width + '%';
+        }
+
+        function showLoading(text = 'Processing...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            loadingText.textContent = text;
+            overlay.classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        // Stock Analysis Functions
+        function goToStockAnalysis() {
+            goToPage('stockAnalysisPage');
+        }
+
+        function setupStockInput() {
+            const stockInput = document.getElementById('stockInput');
+            const suggestions = document.getElementById('suggestions');
+
+            stockInput.addEventListener('input', function() {
+                const query = this.value.toUpperCase();
+                
+                if (query.length > 0) {
+                    const matches = stockDatabase.filter(stock => 
+                        stock.symbol.includes(query) || 
+                        stock.name.toUpperCase().includes(query)
+                    ).slice(0, 5);
+
+                    if (matches.length > 0) {
+                        suggestions.innerHTML = matches.map(stock => `
+                            <div class="suggestion-item" onclick="selectStock('${stock.symbol}', '${stock.name}')">
+                                <div>
+                                    <div class="suggestion-symbol">${stock.symbol}</div>
+                                    <div class="suggestion-name">${stock.name}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                        suggestions.style.display = 'block';
+                    } else {
+                        suggestions.style.display = 'none';
+                    }
+                } else {
+                    suggestions.style.display = 'none';
+                }
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!stockInput.contains(e.target) && !suggestions.contains(e.target)) {
+                    suggestions.style.display = 'none';
+                }
+            });
+        }
+
+        function selectStock(symbol, name) {
+            const stockInput = document.getElementById('stockInput');
+            const suggestions = document.getElementById('suggestions');
+            
+            stockInput.value = `${symbol} - ${name}`;
+            selectedStock = symbol;
+            suggestions.style.display = 'none';
+        }
+
+        // Stock Analysis Form Handler
+        function setupStockAnalysisForm() {
+            const form = document.getElementById('stockAnalysisForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const stockInput = document.getElementById('stockInput');
+                const inputValue = stockInput.value.trim();
+                
+                if (inputValue) {
+                    // Extract symbol from input
+                    selectedStock = inputValue.split(' - ')[0] || inputValue;
+                    
+                    showLoading('Preparing analysis for ' + selectedStock + '...');
+                    setTimeout(() => {
+                        hideLoading();
+                        document.getElementById('selectedStock').textContent = selectedStock;
+                        goToPage('registrationPage');
+                    }, 2000);
+                }
+            });
+        }
+
+        // Registration Functions
+        function setupRegistrationForm() {
+            // Platform selection
+            const platformOptions = document.querySelectorAll('.platform-option');
+            platformOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    platformOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    userPlatform = this.dataset.platform;
+                    
+                    const phoneLabel = document.getElementById('phoneLabel');
+                    phoneLabel.textContent = userPlatform === 'whatsapp' ? 'WhatsApp Number' : 'Telegram Number';
+                });
+            });
+
+            // Set default platform
+            document.querySelector('.platform-option[data-platform="whatsapp"]').classList.add('selected');
+
+            // Registration form submission
+            const form = document.getElementById('registrationForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                userData = {
+                    name: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    countryCode: document.getElementById('countryCode').value,
+                    phone: document.getElementById('phoneNumber').value,
+                    platform: userPlatform,
+                    stock: selectedStock
+                };
+
+                showLoading('Creating your account...');
+                setTimeout(() => {
+                    hideLoading();
+                    setupSuccessPage();
+                    goToPage('successPage');
+                }, 1500);
+            });
+        }
+
+        function setupSuccessPage() {
+            document.getElementById('analysisStock').textContent = selectedStock;
+            document.getElementById('selectedPlatform').textContent = userPlatform === 'whatsapp' ? 'WhatsApp' : 'Telegram';
+            
+            const platformBtn = document.getElementById('platformBtn');
+            if (userPlatform === 'telegram') {
+                platformBtn.innerHTML = '<i class="fab fa-telegram"></i> Continue on Telegram';
+                platformBtn.style.background = 'linear-gradient(135deg, #0088cc, #0066aa)';
+            } else {
+                platformBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Continue on WhatsApp';
+            }
+        }
+
+        function openPlatformChat() {
+            const fullPhone = userData.countryCode + userData.phone;
+            const message = encodeURIComponent(
+                `Hi TradeMind AI! I just registered for analysis of ${selectedStock}. My name is ${userData.name} and I'm ready to receive my trading signals and market insights. Please send me the analysis!`
+            );
+
+            let url;
+            if (userPlatform === 'whatsapp') {
+                url = `https://wa.me/971501234567?text=${message}`;
+            } else {
+                url = `https://t.me/TradeMindAI?text=${message}`;
+            }
+
+            window.open(url, '_blank');
+            
+            // Show confirmation
+            setTimeout(() => {
+                alert('🎉 Welcome to TradeMind AI! You should now receive your analysis and trading signals on ' + 
+                      (userPlatform === 'whatsapp' ? 'WhatsApp' : 'Telegram') + '.');
+            }, 1000);
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupStockInput();
+            setupStockAnalysisForm();
+            setupRegistrationForm();
+            
+            // Set initial progress
+            updateProgressBar('landingPage');
+            
+            console.log('TradeMind AI Enhanced Platform Loaded');
+        });
+
+        // Smooth scrolling for navigation links on landing page
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('nav a[href^="#"]')) {
+                e.preventDefault();
+                const target = document.querySelector(e.target.getAttribute('href'));
+                if (target && currentPage === 'landingPage') {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+
+        // Demo button functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-secondary')) {
+                // Add demo interaction
+                const mockup = document.querySelector('.dashboard-mockup');
+                if (mockup) {
+                    mockup.style.animation = 'pulse 1s ease-in-out';
+                    setTimeout(() => {
+                        mockup.style.animation = '';
+                    }, 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
