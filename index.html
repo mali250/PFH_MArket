@@ -115,6 +115,59 @@
             transform: rotate(180deg);
         }
 
+        /* Login Button Styles */
+        .login-btn {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-left: 15px;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.1), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--shadow);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .login-btn i {
+            font-size: 1rem;
+            color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover i {
+            transform: scale(1.1);
+        }
+
         /* Animated background */
         .bg-animation {
             position: fixed;
@@ -987,7 +1040,7 @@
                 gap: 15px;
             }
 
-            .theme-toggle {
+            .theme-toggle, .login-btn {
                 order: -1;
                 margin: 0;
                 font-size: 0.8rem;
@@ -1078,17 +1131,21 @@
                 <i id="theme-icon" class="fas fa-sun"></i>
                 <span id="theme-text">Light</span>
             </div>
-            <button class="cta-btn" onclick="selectPlan('trial')">Start Free Trial</button>
+            <button class="login-btn" onclick="openLoginModal()">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </button>
+            <a href="freetrial.html" class="cta-btn">Start Free Trial</a>
         </nav>
     </header>
-
+    
     <section class="hero">
         <div class="hero-text">
             <h2>AI Trading Intelligence Platform</h2>
             <p>Revolutionary AI-powered insights, real-time signals, and intelligent strategies for stocks, crypto, forex, and more. Replace 5+ trading tools with one powerful platform.</p>
             <div class="cta-group">
-                <button class="btn-primary" onclick="selectPlan('trial')">Start Free Trial</button>
-                <button class="btn-secondary" onclick="scrollToDemo()">Watch Demo</button>
+                <button class="btn-primary" onclick="openLoginModal()">Get Started</button>
+                <a href="#demo" class="btn-secondary">Watch Demo</a>
             </div>
         </div>
         <div class="hero-image">
@@ -1099,6 +1156,7 @@
             </div>
         </div>
     </section>
+    
 
     <section class="stats-section">
         <div class="stats-grid">
@@ -1342,10 +1400,10 @@
         </div>
     </footer>
 
-    <!-- Registration Modal -->
-    <div id="registrationModal" class="modal">
+    <!-- Login/Registration Modal -->
+    <div id="loginModal" class="modal">
         <div class="modal-content">
-            <h3>Create Your Account</h3>
+            <h3>Access Your Trading Dashboard</h3>
             
             <!-- Demo Credentials Display -->
             <div class="demo-credentials">
@@ -1356,12 +1414,14 @@
                 <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.8;">These credentials are pre-filled for demo purposes</p>
             </div>
             
-            <form id="registrationForm">
-                <input type="email" id="email" placeholder="Email Address" value="demo@trademind.ai" required>
-                <input type="password" id="password" placeholder="Password" value="trader123" required>
-                <input type="text" id="fullName" placeholder="Full Name" value="Admin" required>
-                <button type="submit" class="submit-btn">Start Trading Now</button>
-                <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email Address" value="demo@trademind.ai" required>
+                <input type="password" id="loginPassword" placeholder="Password" value="trader123" required>
+                <input type="text" id="loginName" placeholder="Full Name" value="Admin" required>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-sign-in-alt"></i> Access Dashboard
+                </button>
+                <button type="button" class="cancel-btn" onclick="closeLoginModal()">Cancel</button>
             </form>
         </div>
     </div>
@@ -1370,13 +1430,13 @@
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <h3>Setting up your account...</h3>
+            <h3>Logging you in...</h3>
             <p>Preparing your personalized trading dashboard</p>
         </div>
     </div>
 
     <script>
-        let selectedPlan = '';
+        let selectedPlan = 'free'; // Default plan
 
         // Hardcoded demo user credentials
         const DEMO_USER = {
@@ -1407,23 +1467,29 @@
             console.log(`Theme switched to: ${newTheme}`);
         }
 
-        function selectPlan(plan) {
-            selectedPlan = plan;
-            const modal = document.getElementById('registrationModal');
+        // Open Login Modal Function
+        function openLoginModal() {
+            const modal = document.getElementById('loginModal');
             modal.style.display = 'flex';
             
             // Pre-fill form with demo credentials
-            document.getElementById('email').value = DEMO_USER.email;
-            document.getElementById('password').value = DEMO_USER.password;
-            document.getElementById('fullName').value = DEMO_USER.name;
+            document.getElementById('loginEmail').value = DEMO_USER.email;
+            document.getElementById('loginPassword').value = DEMO_USER.password;
+            document.getElementById('loginName').value = DEMO_USER.name;
             
             const modalContent = modal.querySelector('.modal-content');
             modalContent.style.animation = 'modalSlideIn 0.3s ease-out';
         }
 
-        function closeModal() {
-            const modal = document.getElementById('registrationModal');
+        // Close Login Modal Function
+        function closeLoginModal() {
+            const modal = document.getElementById('loginModal');
             modal.style.display = 'none';
+        }
+
+        function selectPlan(plan) {
+            selectedPlan = plan;
+            openLoginModal(); // Open login modal instead of registration modal
         }
 
         function showLoading() {
@@ -1453,18 +1519,18 @@
         }
 
         // Form submission with authentication
-        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Get form data
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const name = document.getElementById('fullName').value;
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const name = document.getElementById('loginName').value;
             
             // Validate credentials against demo user
             if (email === DEMO_USER.email && password === DEMO_USER.password && name === DEMO_USER.name) {
                 // Show loading
-                closeModal();
+                closeLoginModal();
                 showLoading();
                 
                 // Store user session data (in a real app, you'd use secure tokens)
@@ -1484,14 +1550,18 @@
                     hideLoading();
                     
                     // In a real app, you would redirect to dashboard.html
-                    // For this demo, we'll show a success message and "redirect"
-                    alert(`✅ Welcome ${name}! Your ${selectedPlan} plan is activated. Redirecting to dashboard...`);
-                    
-                    // Simulate redirect (in real app: window.location.href = 'dashboard.html')
                     console.log('Redirecting to dashboard with user data:', userData);
                     
-                    // For demo purposes, you can uncomment the line below if you have dashboard.html
-                    window.location.href = 'dashboard.html';
+                    // Simulate successful login and redirect
+                
+                    // Redirect to dashboard.html
+                    try {
+                        window.location.href = 'dashboard.html';
+                    } catch (error) {
+                        console.log('Dashboard redirect attempted:', error);
+                        // Fallback message if dashboard.html doesn't exist
+                        alert('🚀 Dashboard would open here! (Create dashboard.html file to complete the flow)');
+                    }
                     
                 }, 2000);
                 
@@ -1500,16 +1570,16 @@
                 alert('❌ Invalid credentials. Please use the demo credentials provided.');
                 
                 // Reset form to demo values
-                document.getElementById('email').value = DEMO_USER.email;
-                document.getElementById('password').value = DEMO_USER.password;
-                document.getElementById('fullName').value = DEMO_USER.name;
+                document.getElementById('loginEmail').value = DEMO_USER.email;
+                document.getElementById('loginPassword').value = DEMO_USER.password;
+                document.getElementById('loginName').value = DEMO_USER.name;
             }
         });
 
         // Close modal when clicking outside
-        document.getElementById('registrationModal').addEventListener('click', function(e) {
+        document.getElementById('loginModal').addEventListener('click', function(e) {
             if (e.target === this) {
-                closeModal();
+                closeLoginModal();
             }
         });
 
@@ -1529,7 +1599,7 @@
 
         // Initialize theme on page load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('TradeMind AI loaded with authentication system');
+            console.log('TradeMind AI loaded with login functionality');
             
             // Add some interactive hover effects
             document.querySelectorAll('.card').forEach(card => {
@@ -1553,6 +1623,13 @@
             window.userSession = null;
             window.location.href = 'index.html';
         }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLoginModal();
+            }
+        });
     </script>
 </body>
 </html>
